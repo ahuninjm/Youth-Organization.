@@ -14,6 +14,8 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
+unset($_SESSION['user']);
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $action = $_POST['action'] ?? 'login';
 
@@ -87,15 +89,6 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 }
 
-$loggedInUser = $_SESSION['user'] ?? null;
-
-if ($loggedInUser) {
-    $redirectPage = in_array($loggedInUser['role'] ?? 'member', ['officer', 'admin'], true)
-        ? 'dashboard.php'
-        : 'homepage.php';
-    header('Location: ' . $redirectPage);
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -565,26 +558,13 @@ if ($loggedInUser) {
             <p class="text-muted mb-0">Purok New Binangcaan</p>
         </div>
 
-        <?php if ($loggedInUser): ?>
-            <div class="alert alert-success" role="alert">
-                Welcome, <?php echo htmlspecialchars($loggedInUser['name']); ?>.
+        <?php if ($message): ?>
+            <div class="alert alert-<?php echo htmlspecialchars($messageType); ?>" role="alert">
+                <?php echo htmlspecialchars($message); ?>
             </div>
+        <?php endif; ?>
 
-            <div class="dashboard-actions">
-                <div class="p-3 bg-light border rounded-2">
-                    <strong>Signed in as</strong><br>
-                    <?php echo htmlspecialchars($loggedInUser['username']); ?>
-                </div>
-                <a href="login.php?logout=1" class="btn btn-outline-danger">Logout</a>
-            </div>
-        <?php else: ?>
-            <?php if ($message): ?>
-                <div class="alert alert-<?php echo htmlspecialchars($messageType); ?>" role="alert">
-                    <?php echo htmlspecialchars($message); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($activeForm === 'register'): ?>
+        <?php if ($activeForm === 'register'): ?>
                 <div class="registration-flow" aria-label="Youth registration process">
                     <div class="registration-step"><span class="registration-step-number">1</span><span class="registration-step-label">Youth Registration</span></div>
                     <div class="registration-step"><span class="registration-step-number">2</span><span class="registration-step-label">Enter Personal Information</span></div>
@@ -654,7 +634,6 @@ if ($loggedInUser) {
                 <div class="text-center mt-3">
                     <a href="login.php?form=register">Create an account</a>
                 </div>
-            <?php endif; ?>
         <?php endif; ?>
         </section>
     </div>
